@@ -1,19 +1,17 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getDashboardSummary, generateSampleData } from '../services/api';
+import { getDashboardSummary } from '../services/api';
 import FloorCard from './FloorCard';
 import TrendChart from './TrendChart';
 import PredictionChart from './PredictionChart';
 import ThermalRiskIndicator from './ThermalRiskIndicator';
 import AlertsTable from './AlertsTable';
-import { Play, Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const [selectedPiso, setSelectedPiso] = useState(null);
   const [pisoFilter, setPisoFilter] = useState(null);
   const [nivelFilter, setNivelFilter] = useState(null);
   const [orderBy, setOrderBy] = useState('desc'); // 'asc' o 'desc'
-  const queryClient = useQueryClient();
 
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard-summary'],
@@ -21,28 +19,7 @@ export default function Dashboard() {
     refetchInterval: 30000,
   });
 
-  const generateDataMutation = useMutation({
-    mutationFn: generateSampleData,
-    onSuccess: () => {
-      // Refrescar datos después de generar
-      queryClient.invalidateQueries(['dashboard-summary']);
-      queryClient.invalidateQueries(['readings']);
-      queryClient.invalidateQueries(['alerts']);
-    },
-  });
-
   const pisos = dashboardData?.pisos || [];
-  
-  // Verificar si hay datos (si todas las tarjetas no tienen última lectura)
-  const hasNoData = pisos.every(piso => !piso.ultima_lectura);
-  
-  const handleGenerateData = () => {
-    generateDataMutation.mutate({
-      count: 30,
-      interval_minutes: 1,
-      scenario: 'normal'
-    });
-  };
 
   if (isLoading) {
     return (
@@ -71,39 +48,6 @@ export default function Dashboard() {
       </div>
 
       <div className="max-w-[1920px] mx-auto px-6 py-6">
-        {/* Botón Simular cuando no hay datos */}
-        {hasNoData && (
-          <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
-                  No hay datos disponibles
-                </h3>
-                <p className="text-sm text-yellow-700 dark:text-yellow-300">
-                  Genera datos de ejemplo para comenzar a visualizar el dashboard
-                </p>
-              </div>
-              <button
-                onClick={handleGenerateData}
-                disabled={generateDataMutation.isPending}
-                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all disabled:cursor-not-allowed"
-              >
-                {generateDataMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Generando...</span>
-                  </>
-                ) : (
-                  <>
-                    <Play className="w-5 h-5" />
-                    <span>Simular Datos</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Tarjetas por Piso - Mejoradas */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {pisos.map((piso) => (
