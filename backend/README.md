@@ -1,118 +1,157 @@
 # SmartFloors Backend API
 
-Backend API para el sistema de monitoreo SmartFloors desarrollado con FastAPI.
+Backend API para el sistema de monitoreo SmartFloors (FastAPI + SQLAlchemy + PostgreSQL).
 
 ## Requisitos
+- Opción A (recomendada en ≤5 min): Docker Desktop.
+- Opción B (desarrollo local): Python 3.11+, PostgreSQL 15+, Redis 7+.
 
-- Python 3.11+
-- PostgreSQL 15+
-- Redis (opcional, para tareas asíncronas)
+## Quickstart con Docker (≤ 5 minutos)
+Ejecutar desde la raíz del proyecto (donde está `docker-compose.yml`). Comandos para PowerShell.
 
-## Instalación
-
-1. Crear entorno virtual:
-```bash
-python -m venv venv
-source venv/bin/activate  # En Windows: venv\Scripts\activate
+1) Levantar servicios y API
+```powershell
+cd "c:\Users\bymig\Desktop\HACKATON\smartfloors-mvp"
+docker compose up -d --build
 ```
 
-2. Instalar dependencias:
-```bash
+2) Inicializar la base de datos (umbrales e índices)
+```powershell
+docker compose exec backend python init_db.py
+```
+
+3) Verificar
+- Salud: `http://localhost:8000/health`
+- Docs (Swagger): `http://localhost:8000/docs`
+
+4) (Opcional) Cargar datos de ejemplo
+```powershell
+Invoke-RestMethod -Method POST `
+	-Uri "http://localhost:8000/api/v1/data/import" `
+	-ContentType "application/json" `
+	-InFile ".\backend\example_data.json"
+```
+
+5) (Opcional) Generar datos sintéticos
+```powershell
+$body = @{ count = 30; interval_minutes = 1; scenario = "normal" } | ConvertTo-Json
+Invoke-RestMethod -Method POST `
+	-Uri "http://localhost:8000/api/v1/data/generate" `
+	-ContentType "application/json" `
+	-Body $body
+```
+
+## Desarrollo local (sin Docker)
+1) Crear y activar entorno virtual
+```powershell
+cd "c:\Users\bymig\Desktop\HACKATON\smartfloors-mvp\backend"
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+```
+
+2) Instalar dependencias
+```powershell
 pip install -r requirements.txt
 ```
 
-3. Configurar variables de entorno:
-```bash
-cp .env.example .env
-# Editar .env con tus configuraciones
+3) Configurar variables de entorno
+```powershell
+Copy-Item .env.example .env
+# Edita .env si necesitas cambiar DATABASE_URL/REDIS_URL
+```
+Por defecto (archivo `app/config.py`):
+- `DATABASE_URL=postgresql+psycopg2://admin:admin@localhost:5432/smartfloors`
+- `REDIS_URL=redis://localhost:6379`
+
+Asegúrate de tener PostgreSQL y Redis locales corriendo con esas credenciales/puertos.
+
+4) Inicializar base de datos
+```powershell
+python .\init_db.py
 ```
 
-4. Inicializar base de datos:
-```bash
-python init_db.py
-```
-
-## Ejecución
-
-### Desarrollo local:
-```bash
+5) Ejecutar FastAPI
+```powershell
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### Con Docker:
-```bash
-docker-compose up backend
-```
+## Endpoints principales
+- `GET /` — Estado de la API
+- `GET /docs` — Swagger
+- `GET /health` — Health check
 
-## Endpoints Principales
+Lecturas
+- `POST /api/v1/readings` — Crear lectura
+- `POST /api/v1/readings/batch` — Crear múltiples lecturas
+- `GET /api/v1/readings` — Listar lecturas con filtros
+- `GET /api/v1/readings/floors/{piso}/current` — Lectura actual de un piso
 
-- `GET /` - Estado de la API
-- `GET /docs` - Documentación interactiva (Swagger)
-- `GET /health` - Health check
+Alertas
+- `GET /api/v1/alerts` — Listar alertas con filtros
+- `POST /api/v1/alerts/{alert_id}/acknowledge` — Reconocer alerta
+- `GET /api/v1/alerts/export` — Exportar alertas (CSV/JSON)
 
-### Lecturas
-- `POST /api/v1/readings` - Crear lectura
-- `POST /api/v1/readings/batch` - Crear múltiples lecturas
-- `GET /api/v1/readings` - Listar lecturas con filtros
-- `GET /api/v1/readings/floors/{piso}/current` - Lectura actual de un piso
+Predicciones
+- `GET /api/v1/predictions/{piso}` — Obtener predicciones para un piso
 
-### Alertas
-- `GET /api/v1/alerts` - Listar alertas con filtros
-- `POST /api/v1/alerts/{alert_id}/acknowledge` - Reconocer alerta
-- `GET /api/v1/alerts/export` - Exportar alertas (CSV/JSON)
+Dashboard
+- `GET /api/v1/dashboard/summary` — Resumen de dashboard
 
-### Predicciones
-- `GET /api/v1/predictions/{piso}` - Obtener predicciones para un piso
+Importación y generación de datos
+- `POST /api/v1/data/import` — Importar datos JSON
+- `POST /api/v1/data/generate` — Generar datos de ejemplo
+- `GET /api/v1/data/export-template` — Template de importación
 
-### Dashboard
-- `GET /api/v1/dashboard/summary` - Resumen del dashboard
+Notificaciones
+- `POST /api/v1/notifications/subscribe` — Suscripciones (opcional)
 
-### Importación y Generación de Datos
-- `POST /api/v1/data/import` - Importar datos desde JSON
-- `POST /api/v1/data/generate` - Generar datos de ejemplo (30+ datos)
-- `GET /api/v1/data/export-template` - Obtener template JSON para importación
-
-### Notificaciones
-- `POST /api/v1/notifications/subscribe` - Suscribirse a notificaciones
-
-## Estructura del Proyecto
-
+## Estructura del proyecto
 ```
 backend/
 ├── app/
-│   ├── __init__.py
 │   ├── main.py              # Aplicación principal
-│   ├── config.py            # Configuración
-│   ├── database.py          # Configuración de DB
+│   ├── config.py            # Configuración (.env soportado)
+│   ├── database.py          # Engine/Session
 │   ├── models/              # Modelos SQLAlchemy
 │   ├── schemas/             # Schemas Pydantic
 │   ├── routers/             # Endpoints API
 │   └── services/            # Lógica de negocio
-├── alembic/                 # Migraciones de DB
-├── init_db.py               # Script de inicialización
+├── alembic/                 # Migraciones (opcional)
+├── init_db.py               # Seed de umbrales + índices
 ├── requirements.txt         # Dependencias
-└── Dockerfile              # Imagen Docker
+└── Dockerfile               # Imagen Docker
 ```
 
-## Migraciones de Base de Datos
-
-```bash
+## Migraciones (Alembic)
+> Nota: El proyecto crea tablas automáticamente vía `Base.metadata.create_all`. Si usas migraciones:
+```powershell
 # Crear nueva migración
-alembic revision --autogenerate -m "descripción"
+alembic revision --autogenerate -m "descripcion"
 
 # Aplicar migraciones
 alembic upgrade head
 
-# Revertir migración
+# Revertir última
 alembic downgrade -1
 ```
 
-## Variables de Entorno
+## Variables de entorno
+Ver `.env.example`. Principales:
+- `DATABASE_URL` — URL PostgreSQL
+- `REDIS_URL` — URL Redis
+- `GEMINI_API_KEY` — API key (opcional)
 
-Ver `.env.example` para todas las variables disponibles.
-
-Principales:
-- `DATABASE_URL` - URL de conexión a PostgreSQL
-- `REDIS_URL` - URL de conexión a Redis
-- `GEMINI_API_KEY` - API key para Gemini (opcional)
+## Troubleshooting
+- Ver logs de la API (Docker):
+```powershell
+docker compose logs -f backend
+```
+- Reinicio limpio de datos locales (Docker):
+```powershell
+docker compose down
+Remove-Item -Recurse -Force ..\data\db -ErrorAction SilentlyContinue
+docker compose up -d --build
+docker compose exec backend python init_db.py
+```
+- DB no lista al inicio: espera 5–10s y reintenta `init_db.py`.
 
