@@ -9,6 +9,10 @@ class SimulatorStart(BaseModel):
     scenario: Literal["normal", "stress", "anomaly"] = Field(default="normal")
 
 
+class SimulatorStop(BaseModel):
+    simulator_id: UUID
+
+
 class SimulatorResponse(BaseModel):
     simulator_id: UUID
     status: str

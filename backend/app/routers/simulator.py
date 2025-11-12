@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 from app.database import get_db
-from app.schemas.simulator import SimulatorStart, SimulatorResponse
+from app.schemas.simulator import SimulatorStart, SimulatorStop, SimulatorResponse
 from app.services.simulator_service import SimulatorService
 
 router = APIRouter()
@@ -34,20 +34,20 @@ async def start_simulator(
 
 @router.post("/stop", response_model=dict)
 async def stop_simulator(
-    simulator_id: UUID,
+    request: SimulatorStop,
     db: Session = Depends(get_db)
 ):
     """Detiene el simulador"""
     simulator_service = SimulatorService(db)
     
-    stopped = simulator_service.stop_simulator(simulator_id)
+    stopped = simulator_service.stop_simulator(request.simulator_id)
     
     if not stopped:
         raise HTTPException(status_code=404, detail="Simulador no encontrado")
     
     return {
         "message": "Simulador detenido exitosamente",
-        "simulator_id": str(simulator_id)
+        "simulator_id": str(request.simulator_id)
     }
 
 

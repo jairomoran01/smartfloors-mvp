@@ -17,24 +17,27 @@ try:
     if existing_thresholds == 0:
         print("Inicializando umbrales...")
         
-        # Insertar umbrales según el PRD
+        # Insertar umbrales según especificaciones
         umbrales_data = [
             # Temperatura
-            {"variable": "temperatura", "nivel": "informativa", "valor_min": None, "valor_max": 27.9, "descripcion": "Temperatura ligeramente elevada"},
-            {"variable": "temperatura", "nivel": "media", "valor_min": 28.0, "valor_max": 29.9, "descripcion": "Temperatura alta, requiere atención"},
-            {"variable": "temperatura", "nivel": "critica", "valor_min": 30.0, "valor_max": None, "descripcion": "Temperatura crítica, acción inmediata"},
+            # OK: <26°C (óptima: 24°C) - no se define umbral, es el estado normal
+            {"variable": "temperatura", "nivel": "informativa", "valor_min": 26.0, "valor_max": 27.9, "descripcion": "Temperatura ligeramente elevada"},
+            {"variable": "temperatura", "nivel": "media", "valor_min": 28.0, "valor_max": 29.4, "descripcion": "Temperatura alta, requiere atención"},
+            {"variable": "temperatura", "nivel": "critica", "valor_min": 29.5, "valor_max": None, "descripcion": "Temperatura crítica, acción inmediata"},
             
             # Humedad
-            {"variable": "humedad", "nivel": "informativa_baja", "valor_min": None, "valor_max": 25.0, "descripcion": "Humedad baja"},
-            {"variable": "humedad", "nivel": "informativa_alta", "valor_min": 70.0, "valor_max": None, "descripcion": "Humedad alta"},
-            {"variable": "humedad", "nivel": "media_baja", "valor_min": None, "valor_max": 22.0, "descripcion": "Humedad muy baja"},
-            {"variable": "humedad", "nivel": "media_alta", "valor_min": 75.0, "valor_max": None, "descripcion": "Humedad muy alta"},
-            {"variable": "humedad", "nivel": "critica_baja", "valor_min": None, "valor_max": 20.0, "descripcion": "Humedad críticamente baja"},
-            {"variable": "humedad", "nivel": "critica_alta", "valor_min": 80.0, "valor_max": None, "descripcion": "Humedad críticamente alta"},
+            # OK: 25-70% (óptima: 50-60%) - no se define umbral, es el estado normal
+            {"variable": "humedad", "nivel": "informativa_baja", "valor_min": None, "valor_max": 24.9, "descripcion": "Humedad baja"},
+            {"variable": "humedad", "nivel": "informativa_alta", "valor_min": 70.1, "valor_max": None, "descripcion": "Humedad alta"},
+            {"variable": "humedad", "nivel": "media_baja", "valor_min": None, "valor_max": 21.9, "descripcion": "Humedad muy baja"},
+            {"variable": "humedad", "nivel": "media_alta", "valor_min": 75.1, "valor_max": None, "descripcion": "Humedad muy alta"},
+            {"variable": "humedad", "nivel": "critica_baja", "valor_min": None, "valor_max": 19.9, "descripcion": "Humedad críticamente baja"},
+            {"variable": "humedad", "nivel": "critica_alta", "valor_min": 80.1, "valor_max": None, "descripcion": "Humedad críticamente alta"},
             
             # Energía
-            {"variable": "energia", "nivel": "informativa", "valor_min": 15.0, "valor_max": 20.0, "descripcion": "Consumo elevado"},
-            {"variable": "energia", "nivel": "media", "valor_min": 20.0, "valor_max": 25.0, "descripcion": "Consumo alto"},
+            # OK: <15kW - no se define umbral, es el estado normal
+            {"variable": "energia", "nivel": "informativa", "valor_min": 15.0, "valor_max": 19.9, "descripcion": "Consumo elevado"},
+            {"variable": "energia", "nivel": "media", "valor_min": 20.0, "valor_max": 24.9, "descripcion": "Consumo alto"},
             {"variable": "energia", "nivel": "critica", "valor_min": 25.0, "valor_max": None, "descripcion": "Consumo crítico"},
         ]
         

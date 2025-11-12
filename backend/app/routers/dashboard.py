@@ -43,15 +43,31 @@ async def get_dashboard_summary(db: Session = Depends(get_db)):
             Alerta.estado == "activa"
         ).count()
         
-        # Determinar estado
+        # Determinar estado basado en umbrales actuales
+        # Temperatura: Crítica >=29.5, Media 28.0-29.4, Informativa 26.0-27.9, OK <26.0
         estado = "OK"
         if metrics and metrics.temp_avg:
-            if float(metrics.temp_avg) > 30 or active_alerts > 0:
+            temp_avg = float(metrics.temp_avg)
+            # Verificar si hay alertas críticas activas
+            critical_alerts = db.query(Alerta).filter(
+                Alerta.piso == piso,
+                Alerta.estado == "activa",
+                Alerta.nivel == "critica"
+            ).count()
+            medium_alerts = db.query(Alerta).filter(
+                Alerta.piso == piso,
+                Alerta.estado == "activa",
+                Alerta.nivel == "media"
+            ).count()
+            
+            if temp_avg >= 29.5 or critical_alerts > 0:
                 estado = "CRITICA"
-            elif float(metrics.temp_avg) > 28 or active_alerts > 0:
+            elif temp_avg >= 28.0 or medium_alerts > 0:
                 estado = "MEDIA"
-            elif float(metrics.temp_avg) > 26:
+            elif temp_avg >= 26.0:
                 estado = "INFORMATIVA"
+            else:
+                estado = "OK"
         
         resumen = "Condiciones normales"
         if estado != "OK":

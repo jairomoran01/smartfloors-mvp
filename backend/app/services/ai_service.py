@@ -94,6 +94,35 @@ EXPLICACIÓN: [tu explicación]
         
         return recomendacion, explicacion
     
+    def _calculate_temperature_target(self, valor_actual: float, nivel: str) -> float:
+        """Calcula la temperatura objetivo según el nivel de alerta"""
+        # Temperatura óptima: 24°C (estándar de confort)
+        TEMP_OPTIMA = 24.0
+        
+        if nivel == "critica":
+            # Crítica: >= 29.5°C -> objetivo: 24°C (acción inmediata)
+            return TEMP_OPTIMA
+        elif nivel == "media":
+            # Media: 28-29.4°C -> objetivo: 24-25°C (volver a rango óptimo)
+            # Si está muy alta, reducir más agresivamente
+            if valor_actual >= 29.0:
+                return TEMP_OPTIMA
+            else:
+                return 25.0
+        elif nivel == "informativa":
+            # Informativa: 26-27.9°C -> objetivo: 25°C (un poco por debajo del umbral)
+            return 25.0
+        else:
+            return TEMP_OPTIMA
+    
+    def _calculate_humidity_target(self, valor_actual: float, nivel: str) -> float:
+        """Calcula la humedad objetivo según el nivel de alerta"""
+        # Humedad óptima: 50-60% (centro: 55%)
+        HUMEDAD_OPTIMA = 55.0
+        
+        # Siempre apuntar al centro del rango óptimo
+        return HUMEDAD_OPTIMA
+    
     def _get_fallback_recommendation(
         self,
         piso: int,
@@ -104,32 +133,103 @@ EXPLICACIÓN: [tu explicación]
     ) -> Tuple[str, str]:
         """Recomendaciones predefinidas cuando no hay API key"""
         
-        recomendaciones = {
-            "temperatura": {
-                "critica": f"Ajustar temperatura del Piso {piso} a 24°C en los próximos 15 min. Verificar sistema HVAC.",
-                "media": f"Monitorear temperatura del Piso {piso}. Considerar ajuste gradual del sistema de climatización.",
-                "informativa": f"Temperatura del Piso {piso} ligeramente elevada. Mantener monitoreo."
-            },
-            "humedad": {
-                "critica": f"Acción inmediata requerida en Piso {piso}. Ajustar sistema de humidificación/deshumidificación.",
-                "media": f"Monitorear humedad del Piso {piso}. Verificar sistema de control ambiental.",
-                "informativa": f"Humedad del Piso {piso} fuera del rango óptimo. Observar tendencias."
-            },
-            "energia": {
-                "critica": f"Consumo energético crítico en Piso {piso}. Revisar equipos y optimizar carga.",
-                "media": f"Consumo elevado en Piso {piso}. Identificar equipos de alto consumo.",
-                "informativa": f"Consumo energético del Piso {piso} por encima del promedio. Revisar patrones."
-            }
-        }
-        
-        explicaciones = {
-            "temperatura": f"Temperatura ({valor_actual}°C) supera umbral {nivel} ({umbral}°C).",
-            "humedad": f"Humedad ({valor_actual}%) fuera del rango {nivel} (umbral: {umbral}%).",
-            "energia": f"Consumo energético ({valor_actual} kW) excede umbral {nivel} ({umbral} kW)."
-        }
-        
-        recomendacion = recomendaciones.get(variable, {}).get(nivel, "Revisar condiciones del piso.")
-        explicacion = explicaciones.get(variable, f"Variable {variable} excede umbral configurado.")
+        if variable == "temperatura":
+            temp_target = self._calculate_temperature_target(valor_actual, nivel)
+            
+            if nivel == "critica":
+                recomendacion = (
+                    f"Ajustar temperatura del Piso {piso} a {temp_target}°C en los próximos 15 min. "
+                    f"Verificar sistema HVAC y asegurar enfriamiento inmediato."
+                )
+            elif nivel == "media":
+                recomendacion = (
+                    f"Reducir temperatura del Piso {piso} gradualmente a {temp_target}°C. "
+                    f"Monitorear cada 30 min hasta estabilizar en rango óptimo."
+                )
+            else:  # informativa
+                recomendacion = (
+                    f"Optimizar temperatura del Piso {piso} hacia {temp_target}°C. "
+                    f"Temperatura actual ({valor_actual}°C) ligeramente elevada."
+                )
+            
+            explicacion = (
+                f"Temperatura actual: {valor_actual}°C. "
+                f"Umbral {nivel}: {'≥29.5°C' if nivel == 'critica' else '28-29.4°C' if nivel == 'media' else '26-27.9°C'}. "
+                f"Objetivo: {temp_target}°C (rango óptimo: 24°C)."
+            )
+            
+        elif variable == "humedad":
+            humedad_target = self._calculate_humidity_target(valor_actual, nivel)
+            
+            # Determinar si está alta o baja
+            es_baja = valor_actual < 50
+            
+            if nivel == "critica":
+                if es_baja:
+                    recomendacion = (
+                        f"Acción inmediata: aumentar humedad del Piso {piso} a {humedad_target}%. "
+                        f"Valor actual ({valor_actual}%) críticamente bajo (<20%)."
+                    )
+                else:
+                    recomendacion = (
+                        f"Acción inmediata: reducir humedad del Piso {piso} a {humedad_target}%. "
+                        f"Valor actual ({valor_actual}%) críticamente alto (>80%)."
+                    )
+            elif nivel == "media":
+                if es_baja:
+                    recomendacion = (
+                        f"Ajustar humedad del Piso {piso} hacia {humedad_target}%. "
+                        f"Valor actual ({valor_actual}%) muy bajo (<22%). Verificar sistema de humidificación."
+                    )
+                else:
+                    recomendacion = (
+                        f"Ajustar humedad del Piso {piso} hacia {humedad_target}%. "
+                        f"Valor actual ({valor_actual}%) muy alto (>75%). Verificar sistema de deshumidificación."
+                    )
+            else:  # informativa
+                if es_baja:
+                    recomendacion = (
+                        f"Monitorear humedad del Piso {piso}. Valor actual ({valor_actual}%) por debajo del óptimo. "
+                        f"Objetivo: {humedad_target}%."
+                    )
+                else:
+                    recomendacion = (
+                        f"Monitorear humedad del Piso {piso}. Valor actual ({valor_actual}%) por encima del óptimo. "
+                        f"Objetivo: {humedad_target}%."
+                    )
+            
+            rango_umbral = "<20% o >80%" if nivel == "critica" else "<22% o >75%" if nivel == "media" else "<25% o >70%"
+            explicacion = (
+                f"Humedad actual: {valor_actual}%. "
+                f"Umbral {nivel}: {rango_umbral}. "
+                f"Objetivo: {humedad_target}% (rango óptimo: 50-60%)."
+            )
+            
+        elif variable == "energia":
+            if nivel == "critica":
+                recomendacion = (
+                    f"Consumo energético crítico en Piso {piso} ({valor_actual} kW). "
+                    f"Revisar inmediatamente equipos de alto consumo y optimizar carga operativa."
+                )
+            elif nivel == "media":
+                recomendacion = (
+                    f"Consumo elevado en Piso {piso} ({valor_actual} kW). "
+                    f"Identificar circuitos de mayor demanda y redistribuir carga si es posible."
+                )
+            else:  # informativa
+                recomendacion = (
+                    f"Consumo energético del Piso {piso} ({valor_actual} kW) por encima del promedio. "
+                    f"Revisar patrones de uso y programaciones de equipos."
+                )
+            
+            explicacion = (
+                f"Consumo actual: {valor_actual} kW. "
+                f"Umbral {nivel}: {'≥25 kW' if nivel == 'critica' else '20-25 kW' if nivel == 'media' else '15-20 kW'}. "
+                f"Revisar equipos y optimizar eficiencia energética."
+            )
+        else:
+            recomendacion = f"Revisar condiciones del Piso {piso} para la variable {variable}."
+            explicacion = f"Variable {variable} excede umbral configurado ({umbral})."
         
         return recomendacion, explicacion
 

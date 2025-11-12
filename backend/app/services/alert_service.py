@@ -23,11 +23,17 @@ class AlertService:
         ).all()
     
     def check_threshold(self, value: float, threshold: Umbral) -> bool:
-        """Verifica si un valor excede un umbral"""
-        if threshold.valor_min is not None and value < threshold.valor_min:
-            return True
-        if threshold.valor_max is not None and value > threshold.valor_max:
-            return True
+        """Verifica si un valor está dentro del rango del umbral (debe generar alerta)"""
+        # Si tiene valor_min y valor_max: el valor debe estar dentro del rango [min, max]
+        if threshold.valor_min is not None and threshold.valor_max is not None:
+            return threshold.valor_min <= value <= threshold.valor_max
+        # Si solo tiene valor_min: el valor debe ser >= valor_min
+        elif threshold.valor_min is not None:
+            return value >= threshold.valor_min
+        # Si solo tiene valor_max: el valor debe ser <= valor_max
+        elif threshold.valor_max is not None:
+            return value <= threshold.valor_max
+        # Si no tiene límites, no debería generar alerta
         return False
     
     def get_threshold_level(self, value: float, thresholds: List[Umbral]) -> Optional[Umbral]:

@@ -117,10 +117,21 @@ async def get_floor_current(
     if not reading:
         raise HTTPException(status_code=404, detail=f"No hay lecturas para el piso {piso}")
     
-    # Determinar status basado en valores
+    # Determinar status basado en umbrales actuales
+    # Temperatura: Crítica >=29.5, Media 28.0-29.4, Informativa 26.0-27.9, OK <26.0
+    # Energía: Crítica >=25.0, Media 20.0-24.9, Informativa 15.0-19.9, OK <15.0
     status = "OK"
-    if float(reading.temp_c) > 28 or float(reading.energia_kw) > 20:
-        status = "ALERTA"
+    temp = float(reading.temp_c)
+    energia = float(reading.energia_kw)
+    
+    if temp >= 29.5 or energia >= 25.0:
+        status = "CRITICA"
+    elif temp >= 28.0 or energia >= 20.0:
+        status = "MEDIA"
+    elif temp >= 26.0 or energia >= 15.0:
+        status = "INFORMATIVA"
+    else:
+        status = "OK"
     
     return {
         "piso": reading.piso,

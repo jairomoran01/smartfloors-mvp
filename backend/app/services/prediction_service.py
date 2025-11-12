@@ -38,8 +38,8 @@ class PredictionService:
     def predict_temperature(self, df: pd.DataFrame, horizon_minutes: int = 60) -> List[Dict[str, Any]]:
         """Predice temperatura usando promedio móvil simple"""
         if df.empty or len(df) < 2:
-            # Si no hay datos, retornar predicción basada en último valor
-            last_temp = 25.0  # Valor por defecto
+            # Si no hay datos, retornar predicción basada en valor óptimo
+            last_temp = 24.0  # Temperatura óptima según umbrales (<26°C)
             predictions = []
             base_time = datetime.utcnow()
             for i in range(horizon_minutes):
@@ -86,7 +86,7 @@ class PredictionService:
     def predict_humidity(self, df: pd.DataFrame, horizon_minutes: int = 60) -> List[Dict[str, Any]]:
         """Predice humedad usando promedio móvil simple"""
         if df.empty or len(df) < 2:
-            last_humidity = 60.0  # Valor por defecto
+            last_humidity = 55.0  # Humedad óptima (centro del rango 50-60%, según umbrales OK: 25-70%)
             predictions = []
             base_time = datetime.utcnow()
             for i in range(horizon_minutes):
@@ -130,8 +130,10 @@ class PredictionService:
         return predictions
     
     def calculate_thermal_risk(self, temp_pred: float, energia_actual: float) -> str:
-        """Calcula riesgo térmico combinado"""
-        if temp_pred >= 30.0 or energia_actual >= 25.0:
+        """Calcula riesgo térmico combinado basado en los umbrales actuales"""
+        # Temperatura: Crítica >=29.5, Media 28.0-29.4, Informativa 26.0-27.9, OK <26.0
+        # Energía: Crítica >=25.0, Media 20.0-24.9, Informativa 15.0-19.9, OK <15.0
+        if temp_pred >= 29.5 or energia_actual >= 25.0:
             return "alto"
         elif temp_pred >= 28.0 or energia_actual >= 20.0:
             return "medio"
@@ -150,10 +152,10 @@ class PredictionService:
         # Calcular riesgo térmico basado en última lectura
         if not df.empty:
             last_energia = float(df["energia_kw"].iloc[-1])
-            first_temp_pred = temp_predictions[0]["value"] if temp_predictions else 25.0
+            first_temp_pred = temp_predictions[0]["value"] if temp_predictions else 24.0
         else:
-            last_energia = 12.0
-            first_temp_pred = 25.0
+            last_energia = 12.0  # Valor por defecto OK (<15kW)
+            first_temp_pred = 24.0  # Temperatura óptima
         
         riesgo_termico = self.calculate_thermal_risk(first_temp_pred, last_energia)
         
