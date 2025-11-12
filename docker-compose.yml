@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:15
+    container_name: smartfloors_db
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: smartfloors
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: smartfloors_redis
+    ports:
+      - "6379:6379"
+
+  backend:
+    build: ./backend
+    container_name: smartfloors_api
+    environment:
+      DATABASE_URL: postgresql+psycopg2://admin:admin@db:5432/smartfloors
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build: ./frontend
+    container_name: smartfloors_web
+    ports:
+      - "5173:5173"
+    depends_on:
+      - backend
