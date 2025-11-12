@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import readings, alerts, predictions, dashboard, simulator, notifications
+from app.routers import readings, alerts, predictions, dashboard, data_import, notifications
 from app.config import settings
 from app.database import engine, Base
 
@@ -27,7 +27,7 @@ app.include_router(readings.router, prefix="/api/v1/readings", tags=["Readings"]
 app.include_router(alerts.router, prefix="/api/v1/alerts", tags=["Alerts"])
 app.include_router(predictions.router, prefix="/api/v1/predictions", tags=["Predictions"])
 app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["Dashboard"])
-app.include_router(simulator.router, prefix="/api/v1/simulator", tags=["Simulator"])
+app.include_router(data_import.router, prefix="/api/v1/data", tags=["Data Import"])
 app.include_router(notifications.router, prefix="/api/v1/notifications", tags=["Notifications"])
 
 

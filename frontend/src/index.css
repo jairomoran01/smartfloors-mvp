@@ -1,70 +1,74 @@
 @import "tailwindcss";
 
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Fuentes personalizadas */
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
+  /* Fuente principal para texto - Roboto */
+  --font-body: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  
+  /* Fuente para títulos - Helvetica/Futura style (prioriza Helvetica, luego Roboto) */
+  --font-heading: 'Helvetica Neue', Helvetica, 'Roboto', Arial, sans-serif;
+  
+  /* Fuente para datos numéricos - Roboto Mono (similar a Franklin Pro) */
+  --font-mono: 'Roboto Mono', 'Courier New', monospace;
 }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  font-family: var(--font-body);
+  font-weight: 400;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* Títulos principales */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: -0.02em;
 }
 
 h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+  font-weight: 900;
+  letter-spacing: -0.03em;
 }
 
+h2 {
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+h3 {
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+/* Números y datos */
+.font-numeric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+}
+
+/* Timestamps y fechas */
+.font-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+/* Botones y elementos interactivos */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
+  font-family: var(--font-body);
   font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
-  cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  letter-spacing: 0.01em;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+#root {
+  min-height: 100vh;
 }

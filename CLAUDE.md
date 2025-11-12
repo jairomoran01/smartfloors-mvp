@@ -187,20 +187,45 @@ Body: {
   "niveles": ["media", "critica"]
 }
 ```
-#### Simulación de Datos
+#### Importación y Generación de Datos
 ```
-POST /api/v1/simulator/start
+POST /api/v1/data/import
 Body: {
-  "duration_minutes": 120,
-  "interval_seconds": 60,
-  "scenario": "normal" | "stress" | "anomaly"
+  "readings": [
+    {
+      "timestamp": "2025-11-12T10:00:00Z",
+      "edificio": "A",
+      "piso": 1,
+      "temp_c": 24.5,
+      "humedad_pct": 60.0,
+      "energia_kw": 12.5
+    }
+    // ... más lecturas
+  ]
 }
-Response: { "simulator_id": "uuid", "status": "running" }
+Response: {
+  "imported": 10,
+  "errors": 0,
+  "error_details": [],
+  "created_ids": [1, 2, 3, ...]
+}
 
+POST /api/v1/data/generate
+Body: {
+  "count": 30,
+  "interval_minutes": 1,
+  "scenario": "normal" | "stress" | "mixed",
+  "start_time": "2025-11-12T10:00:00Z" // opcional
+}
+Response: {
+  "generated": 90,  // 30 lecturas × 3 pisos
+  "start_time": "2025-11-12T10:00:00Z",
+  "end_time": "2025-11-12T10:29:00Z",
+  "created_ids": [1, 2, 3, ...]
+}
 
-
-
-POST /api/v1/simulator/stop
+GET /api/v1/data/export-template
+Response: Template JSON para importación
 ```
 ---
 ## 5. Esquema de Base de Datos
@@ -373,9 +398,10 @@ $$ LANGUAGE plpgsql;
 ## 6. Alcance del Proyecto
 ### ✅ Dentro del Alcance (MVP - 24 horas)
 #### Funcionalidades Core
-1.  **Ingesta de datos simulados**
+1.  **Ingesta de datos**
 	*   Endpoint para recibir lecturas (temp, humedad, energía)
-	*   Simulador automático con datos realistas
+	*   Importación de datos desde archivos JSON
+	*   Generación de datos de ejemplo para pruebas (30+ datos)
 	*   Validación de datos de entrada
 1.  **Almacenamiento**
 	*   Base de datos PostgreSQL
@@ -506,8 +532,14 @@ $$ LANGUAGE plpgsql;
 ### Flow Backend (Procesamiento Automático)
 ```
 ┌─────────────────┐
-│  Simulador de│
-│     Datos    │ (Genera lecturas cada 1 min)
+│  Importación de │
+│     Datos       │ (JSON o generación automática)
+└─────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│  POST /data/    │
+│  import|generate│
 └─────────────────┘
          │
          ▼
@@ -624,7 +656,7 @@ $$ LANGUAGE plpgsql;
 *   Sistema de alertas y umbrales
 *   Integración con API de IA
 #### **Persona 2: ML/Data Scientist**
-*   Simulador de datos realistas
+*   Generador de datos de ejemplo
 *   Modelo de predicción (temp, humedad)
 *   Lógica de detección de anomalías
 *   Integración predictor con backend
@@ -643,7 +675,8 @@ $$ LANGUAGE plpgsql;
 *   [ ] Crear esquema de DB y migrar
 *   [ ] Setup React + deploy en Vercel
 *   [ ] Endpoint básico de ingesta funcionando
-*   [ ] Simulador básico de datos
+*   [ ] Sistema de importación de datos desde JSON
+*   [ ] Generador de datos de ejemplo
 **Entregable:** Sistema desplegado con ingesta funcionando
 #### **Sprint 2: Core Features (Horas 7-12)**
 *   [ ] Endpoints CRUD completos

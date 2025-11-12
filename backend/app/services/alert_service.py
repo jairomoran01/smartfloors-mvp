@@ -160,9 +160,10 @@ class AlertService:
         nivel: Optional[str] = None,
         estado: Optional[str] = None,
         limit: int = 50,
-        offset: int = 0
+        offset: int = 0,
+        order_by: str = "desc"
     ) -> tuple[List[Alerta], int]:
-        """Obtiene alertas con filtros"""
+        """Obtiene alertas con filtros y ordenamiento"""
         query = self.db.query(Alerta)
         
         if piso:
@@ -173,7 +174,12 @@ class AlertService:
             query = query.filter(Alerta.estado == estado)
         
         total = query.count()
-        alerts = query.order_by(Alerta.timestamp.desc()).offset(offset).limit(limit).all()
+        
+        # Ordenar por timestamp
+        if order_by == "asc":
+            alerts = query.order_by(Alerta.timestamp.asc()).offset(offset).limit(limit).all()
+        else:  # desc por defecto
+            alerts = query.order_by(Alerta.timestamp.desc()).offset(offset).limit(limit).all()
         
         return alerts, total
     

@@ -1,0 +1,77 @@
+{
+  "readings": [
+    {
+      "timestamp": "2025-11-12T10:00:00Z",
+      "edificio": "A",
+      "piso": 1,
+      "temp_c": 24.5,
+      "humedad_pct": 60.0,
+      "energia_kw": 12.5
+    },
+    {
+      "timestamp": "2025-11-12T10:01:00Z",
+      "edificio": "A",
+      "piso": 1,
+      "temp_c": 24.6,
+      "humedad_pct": 60.2,
+      "energia_kw": 12.6
+    },
+    {
+      "timestamp": "2025-11-12T10:02:00Z",
+      "edificio": "A",
+      "piso": 1,
+      "temp_c": 24.7,
+      "humedad_pct": 60.5,
+      "energia_kw": 12.8
+    },
+    {
+      "timestamp": "2025-11-12T10:00:00Z",
+      "edificio": "A",
+      "piso": 2,
+      "temp_c": 25.0,
+      "humedad_pct": 58.0,
+      "energia_kw": 13.5
+    },
+    {
+      "timestamp": "2025-11-12T10:01:00Z",
+      "edificio": "A",
+      "piso": 2,
+      "temp_c": 25.2,
+      "humedad_pct": 58.5,
+      "energia_kw": 13.7
+    },
+    {
+      "timestamp": "2025-11-12T10:02:00Z",
+      "edificio": "A",
+      "piso": 2,
+      "temp_c": 25.4,
+      "humedad_pct": 59.0,
+      "energia_kw": 13.9
+    },
+    {
+      "timestamp": "2025-11-12T10:00:00Z",
+      "edificio": "A",
+      "piso": 3,
+      "temp_c": 23.5,
+      "humedad_pct": 52.0,
+      "energia_kw": 11.5
+    },
+    {
+      "timestamp": "2025-11-12T10:01:00Z",
+      "edificio": "A",
+      "piso": 3,
+      "temp_c": 23.6,
+      "humedad_pct": 52.5,
+      "energia_kw": 11.7
+    },
+    {
+      "timestamp": "2025-11-12T10:02:00Z",
+      "edificio": "A",
+      "piso": 3,
+      "temp_c": 23.7,
+      "humedad_pct": 53.0,
+      "energia_kw": 11.9
+    }
+  ]
+}
+

@@ -1,16 +1,77 @@
-# React + Vite
+# SmartFloors Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dashboard web para el sistema de monitoreo SmartFloors desarrollado con React, Chart.js y Tailwind CSS.
 
-Currently, two official plugins are available:
+## Características
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- ✅ Tarjetas de estado por piso (OK/Informativa/Media/Crítica)
+- ✅ Gráficos de tendencia en tiempo real (Temperatura, Humedad, Energía)
+- ✅ Tabla de alertas con filtros
+- ✅ Modo pantalla completa para cada componente
+- ✅ Diseño responsive
+- ✅ Tema oscuro/claro automático
+- ✅ Actualización automática cada 30 segundos
 
-## React Compiler
+## Instalación
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+## Configuración
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Crear archivo `.env` en la raíz del frontend:
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+## Ejecución
+
+```bash
+npm run dev
+```
+
+El dashboard estará disponible en `http://localhost:5173`
+
+## Estructura de Componentes
+
+```
+src/
+├── components/
+│   ├── Dashboard.jsx          # Componente principal
+│   ├── FloorCard.jsx          # Tarjeta de estado por piso
+│   ├── TrendChart.jsx         # Gráfico de tendencia
+│   ├── AlertsTable.jsx        # Tabla de alertas
+│   └── FullScreenModal.jsx    # Modal de pantalla completa
+├── services/
+│   └── api.js                 # Servicios de API
+├── App.jsx                    # Componente raíz
+└── main.jsx                   # Punto de entrada
+```
+
+## Uso
+
+### Dashboard Principal
+
+El dashboard muestra:
+1. **Tarjetas por Piso**: Estado general de cada piso (1, 2, 3)
+2. **Gráficos de Tendencia**: Últimas 4 horas de datos
+3. **Tabla de Alertas**: Con filtros por piso y nivel
+
+### Funcionalidades
+
+- **Ver Detalles**: Click en "Ver detalles" en una tarjeta para ver gráficos específicos de ese piso
+- **Pantalla Completa**: Click en el icono de maximizar en cualquier gráfico o tabla
+- **Filtros**: Usar los selectores para filtrar alertas por piso y nivel
+- **Reconocer Alertas**: Click en "Reconocer" en una alerta activa
+
+## Tecnologías
+
+- React 19
+- Chart.js 4.5 + react-chartjs-2
+- Tailwind CSS 4
+- React Query (TanStack Query)
+- Axios
+- Lucide React (iconos)
+- date-fns (formateo de fechas)

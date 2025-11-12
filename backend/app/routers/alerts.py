@@ -24,16 +24,18 @@ async def get_alerts(
     estado: Optional[str] = Query(None, pattern="^(activa|reconocida|resuelta)$"),
     limit: int = Query(50, ge=1, le=500),
     offset: int = Query(0, ge=0),
+    order_by: str = Query("desc", pattern="^(asc|desc)$"),
     db: Session = Depends(get_db)
 ):
-    """Obtiene alertas con filtros"""
+    """Obtiene alertas con filtros y ordenamiento por tiempo"""
     alert_service = AlertService(db)
     alerts, total = alert_service.get_alerts(
         piso=piso,
         nivel=nivel,
         estado=estado,
         limit=limit,
-        offset=offset
+        offset=offset,
+        order_by=order_by
     )
     
     return {
@@ -69,6 +71,7 @@ async def export_alerts(
     nivel: Optional[str] = Query(None, pattern="^(informativa|media|critica)$"),
     estado: Optional[str] = Query(None, pattern="^(activa|reconocida|resuelta)$"),
     format: str = Query("csv", pattern="^(csv|json)$"),
+    order_by: str = Query("desc", pattern="^(asc|desc)$"),
     db: Session = Depends(get_db)
 ):
     """Exporta alertas en formato CSV o JSON"""
@@ -78,7 +81,8 @@ async def export_alerts(
         nivel=nivel,
         estado=estado,
         limit=10000,  # Límite alto para exportación
-        offset=0
+        offset=0,
+        order_by=order_by
     )
     
     if format == "csv":

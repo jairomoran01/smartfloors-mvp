@@ -67,10 +67,10 @@ docker-compose up backend
 ### Dashboard
 - `GET /api/v1/dashboard/summary` - Resumen del dashboard
 
-### Simulador
-- `POST /api/v1/simulator/start` - Iniciar simulador
-- `POST /api/v1/simulator/stop` - Detener simulador
-- `GET /api/v1/simulator/status/{simulator_id}` - Estado del simulador
+### Importación y Generación de Datos
+- `POST /api/v1/data/import` - Importar datos desde JSON
+- `POST /api/v1/data/generate` - Generar datos de ejemplo (30+ datos)
+- `GET /api/v1/data/export-template` - Obtener template JSON para importación
 
 ### Notificaciones
 - `POST /api/v1/notifications/subscribe` - Suscribirse a notificaciones
