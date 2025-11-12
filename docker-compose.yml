@@ -33,3 +33,12 @@ services:
       - db
       - redis
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Frontend
+  #frontend:
+    #build: ./frontend
+    #container_name: smartfloors_web
+    #ports:
+    #  - "5173:5173"
+    #depends_on:
+    #  - backend
