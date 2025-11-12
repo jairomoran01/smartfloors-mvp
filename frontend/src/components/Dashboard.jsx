@@ -1,17 +1,19 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getDashboardSummary } from '../services/api';
+import { getDashboardSummary, generateSampleData } from '../services/api';
 import FloorCard from './FloorCard';
 import TrendChart from './TrendChart';
 import PredictionChart from './PredictionChart';
 import ThermalRiskIndicator from './ThermalRiskIndicator';
 import AlertsTable from './AlertsTable';
+import { Play, Loader2 } from 'lucide-react';
 
 export default function Dashboard() {
   const [selectedPiso, setSelectedPiso] = useState(null);
   const [pisoFilter, setPisoFilter] = useState(null);
   const [nivelFilter, setNivelFilter] = useState(null);
   const [orderBy, setOrderBy] = useState('desc'); // 'asc' o 'desc'
+  const queryClient = useQueryClient();
 
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard-summary'],
@@ -19,7 +21,28 @@ export default function Dashboard() {
     refetchInterval: 30000,
   });
 
+  const generateDataMutation = useMutation({
+    mutationFn: generateSampleData,
+    onSuccess: () => {
+      // Refrescar datos después de generar
+      queryClient.invalidateQueries(['dashboard-summary']);
+      queryClient.invalidateQueries(['readings']);
+      queryClient.invalidateQueries(['alerts']);
+    },
+  });
+
   const pisos = dashboardData?.pisos || [];
+  
+  // Verificar si hay datos (si todas las tarjetas no tienen última lectura)
+  const hasNoData = pisos.every(piso => !piso.ultima_lectura);
+  
+  const handleGenerateData = () => {
+    generateDataMutation.mutate({
+      count: 30,
+      interval_minutes: 1,
+      scenario: 'normal'
+    });
+  };
 
   if (isLoading) {
     return (
@@ -30,28 +53,59 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-100 to-gray-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
-      <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Header mejorado */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+    <div className="min-h-screen bg-[#f5f5f5] dark:bg-gray-900">
+      {/* Header con fondo de color diferente */}
+      <div className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
+        <div className="max-w-[1920px] mx-auto px-6 py-5">
+          <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent mb-2">
+              <h1 className="text-3xl font-semibold text-gray-900 dark:text-white mb-1">
                 SmartFloors Dashboard
               </h1>
-              <p className="text-gray-600 dark:text-gray-400 text-lg">
-                Monitoreo en tiempo real de condiciones ambientales y eléctricas
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
+                Monitoreo de condiciones ambientales y eléctricas
               </p>
-            </div>
-            <div className="hidden md:flex items-center gap-2 px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-              <span className="text-sm text-gray-600 dark:text-gray-400">Sistema Activo</span>
             </div>
           </div>
         </div>
+      </div>
+
+      <div className="max-w-[1920px] mx-auto px-6 py-6">
+        {/* Botón Simular cuando no hay datos */}
+        {hasNoData && (
+          <div className="mb-8 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-yellow-800 dark:text-yellow-200 mb-1">
+                  No hay datos disponibles
+                </h3>
+                <p className="text-sm text-yellow-700 dark:text-yellow-300">
+                  Genera datos de ejemplo para comenzar a visualizar el dashboard
+                </p>
+              </div>
+              <button
+                onClick={handleGenerateData}
+                disabled={generateDataMutation.isPending}
+                className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg shadow-md hover:shadow-lg transition-all disabled:cursor-not-allowed"
+              >
+                {generateDataMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Generando...</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" />
+                    <span>Simular Datos</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Tarjetas por Piso - Mejoradas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           {pisos.map((piso) => (
             <FloorCard
               key={piso.piso}
@@ -66,7 +120,7 @@ export default function Dashboard() {
         {selectedPiso ? (
           <div className="mb-8 space-y-6">
             {/* Header de sección con breadcrumb */}
-            <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 mb-4">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setSelectedPiso(null)}
@@ -92,13 +146,12 @@ export default function Dashboard() {
             <ThermalRiskIndicator piso={selectedPiso} />
 
             {/* Gráficos de Tendencia Histórica */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-1 h-6 bg-blue-600 rounded-full"></div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-gray-200 dark:border-gray-700 mb-4">
+              <div className="flex items-center gap-2 mb-5">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Tendencia Histórica
                 </h3>
-                <span className="text-sm text-gray-500 dark:text-gray-400">(Últimas 4 horas)</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">(Últimas 4 horas)</span>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <TrendChart
@@ -126,13 +179,12 @@ export default function Dashboard() {
             </div>
 
             {/* Gráficos de Predicción */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-              <div className="flex items-center gap-2 mb-6">
-                <div className="w-1 h-6 bg-purple-600 rounded-full"></div>
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <div className="bg-white dark:bg-gray-800 rounded-lg p-5 shadow-sm border border-gray-200 dark:border-gray-700 mb-4">
+              <div className="flex items-center gap-2 mb-5">
+                <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Predicciones
                 </h3>
-                <span className="text-sm text-gray-500 dark:text-gray-400">(+60 minutos)</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">(+60 minutos)</span>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <PredictionChart
@@ -153,17 +205,16 @@ export default function Dashboard() {
             </div>
           </div>
         ) : (
-          <div className="mb-8">
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-1 h-8 bg-blue-600 rounded-full"></div>
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="mb-6">
+            <div className="flex items-center gap-2 mb-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                 Gráficos de Tendencia
               </h2>
-              <span className="text-sm text-gray-500 dark:text-gray-400">(Últimas 4 horas)</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">(Últimas 4 horas)</span>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {[1, 2, 3].map((piso) => (
-                <div key={piso} className="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-200 dark:border-gray-700">
+                <div key={piso} className="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700">
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 pb-2 border-b border-gray-200 dark:border-gray-700">
                     Piso {piso}
                   </h3>
@@ -198,11 +249,10 @@ export default function Dashboard() {
 
         {/* Tabla de Alertas con Filtros - Mejorada */}
         <div className="mb-6">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm border border-gray-200 dark:border-gray-700">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 gap-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-8 bg-red-600 rounded-full"></div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-5 border-b border-gray-200 dark:border-gray-700 gap-4">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                   Sistema de Alertas
                 </h2>
               </div>
@@ -251,7 +301,9 @@ export default function Dashboard() {
                 </div>
               </div>
             </div>
-            <AlertsTable pisoFilter={pisoFilter} nivelFilter={nivelFilter} orderBy={orderBy} />
+            <div className="p-5 pt-0">
+              <AlertsTable pisoFilter={pisoFilter} nivelFilter={nivelFilter} orderBy={orderBy} />
+            </div>
           </div>
         </div>
       </div>

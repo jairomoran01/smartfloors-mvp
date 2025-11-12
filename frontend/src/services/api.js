@@ -31,5 +31,14 @@ export const acknowledgeAlert = (alertId) =>
 export const getPredictions = (piso, horizon = 60) => 
   api.get(`/api/v1/predictions/${piso}`, { params: { horizon } }).then(res => res.data);
 
+// Generación de Datos
+export const generateSampleData = (config = {}) => 
+  api.post('/api/v1/data/generate', {
+    count: config.count || 30,
+    interval_minutes: config.interval_minutes || 1,
+    scenario: config.scenario || 'normal',
+    start_time: config.start_time || undefined
+  }).then(res => res.data);
+
 export default api;
 

@@ -120,12 +120,25 @@ export default function TrendChart({ piso, variable, label, unit, color }) {
       y: {
         beginAtZero: false,
         grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
+          color: 'rgba(0, 0, 0, 0.05)',
+          drawBorder: false,
+        },
+        ticks: {
+          font: {
+            size: 11,
+          },
+          color: 'rgba(107, 114, 128, 0.8)',
         },
       },
       x: {
         grid: {
           display: false,
+        },
+        ticks: {
+          font: {
+            size: 11,
+          },
+          color: 'rgba(107, 114, 128, 0.8)',
         },
       },
     },
@@ -145,25 +158,25 @@ export default function TrendChart({ piso, variable, label, unit, color }) {
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-shadow">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow transition-shadow">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
               {label}
             </h3>
-            <span className="text-xs px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded-full">
+            <span className="text-xs px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 rounded">
               {unit}
             </span>
           </div>
           <button
             onClick={() => setIsFullScreen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Pantalla completa"
           >
-            <Maximize2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
-        <div className="h-64">{chartContent}</div>
+        <div className="h-56">{chartContent}</div>
       </div>
 
       {isFullScreen && (

@@ -195,28 +195,25 @@ export default function PredictionChart({ piso, variable, label, unit, color }) 
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-5 shadow-sm hover:shadow-md transition-shadow">
-        <div className="flex items-center justify-between mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 shadow-sm hover:shadow transition-shadow">
+        <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <TrendingUp className="w-4 h-4 text-purple-600 dark:text-purple-400" />
-            </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
               Predicción {label}
             </h3>
-            <span className="text-xs px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-full font-medium">
+            <span className="text-xs px-1.5 py-0.5 bg-purple-50 dark:bg-purple-900/20 text-purple-700 dark:text-purple-300 rounded border border-purple-200 dark:border-purple-800 font-medium">
               +60 min
             </span>
           </div>
           <button
             onClick={() => setIsFullScreen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Pantalla completa"
           >
-            <Maximize2 className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+            <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
-        <div className="h-64">{chartContent}</div>
+        <div className="h-56">{chartContent}</div>
         {predictions.length > 0 && (
           <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between text-xs">

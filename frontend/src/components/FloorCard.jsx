@@ -51,17 +51,17 @@ export default function FloorCard({ piso, summary, onViewDetails }) {
      'Condiciones normales');
 
   return (
-    <div className={`relative overflow-hidden rounded-xl border-2 ${config.borderColor} ${config.bgColor} p-6 transition-all hover:shadow-xl hover:scale-[1.02] bg-white dark:bg-gray-800 shadow-md`}>
+    <div className={`relative overflow-hidden rounded-lg border ${config.borderColor} bg-white dark:bg-gray-800 p-5 transition-all hover:shadow-md ${config.bgColor} shadow-sm`}>
       {/* Barra decorativa superior */}
-      <div className={`absolute top-0 left-0 right-0 h-1 ${config.borderColor.replace('border-', 'bg-')}`}></div>
+      <div className={`absolute top-0 left-0 right-0 h-0.5 ${config.borderColor.replace('border-', 'bg-')}`}></div>
       
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${config.bgColor}`}>
-            <Icon className={`w-6 h-6 ${config.color}`} />
+          <div className={`p-2 rounded-md ${config.bgColor}`}>
+            <Icon className={`w-5 h-5 ${config.color}`} />
           </div>
           <div>
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
               Piso {piso}
             </h3>
             <span className={`text-xs font-medium ${config.color} uppercase tracking-wide`}>
@@ -71,8 +71,8 @@ export default function FloorCard({ piso, summary, onViewDetails }) {
         </div>
       </div>
 
-      <div className="mb-5">
-        <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+      <div className="mb-4">
+        <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
           {resumen}
         </p>
       </div>
@@ -83,22 +83,22 @@ export default function FloorCard({ piso, summary, onViewDetails }) {
           <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-1/2"></div>
         </div>
       ) : current ? (
-        <div className="grid grid-cols-3 gap-4 mb-5">
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-md p-3 text-center border border-gray-100 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide font-medium">Temp</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-white font-numeric">
+            <p className="text-base font-semibold text-gray-900 dark:text-white font-numeric">
               {current.temp_C?.toFixed(1) || 'N/A'}°C
             </p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-md p-3 text-center border border-gray-100 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide font-medium">Humedad</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-white font-numeric">
+            <p className="text-base font-semibold text-gray-900 dark:text-white font-numeric">
               {current.humedad_pct?.toFixed(1) || 'N/A'}%
             </p>
           </div>
-          <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg p-3 text-center">
+          <div className="bg-gray-50 dark:bg-gray-700/30 rounded-md p-3 text-center border border-gray-100 dark:border-gray-700">
             <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 uppercase tracking-wide font-medium">Energía</p>
-            <p className="text-lg font-bold text-gray-900 dark:text-white font-numeric">
+            <p className="text-base font-semibold text-gray-900 dark:text-white font-numeric">
               {current.energia_kW?.toFixed(1) || 'N/A'} kW
             </p>
           </div>
@@ -114,7 +114,7 @@ export default function FloorCard({ piso, summary, onViewDetails }) {
         </div>
         <button
           onClick={() => onViewDetails?.(piso)}
-          className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 rounded-lg transition-colors shadow-sm hover:shadow-md"
+          className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors"
         >
           Ver detalles →
         </button>

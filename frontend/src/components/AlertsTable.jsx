@@ -54,10 +54,10 @@ export default function AlertsTable({ pisoFilter, nivelFilter, orderBy = 'desc' 
 
   const tableContent = (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm text-left">
-        <thead className="text-xs text-gray-700 dark:text-gray-300 uppercase bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-800">
+      <table className="w-full text-sm">
+        <thead className="text-xs text-gray-600 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-700">
           <tr>
-            <th className="px-6 py-4 font-semibold">
+            <th className="px-4 py-3 font-medium text-left">
               <div className="flex items-center gap-2">
                 <span>Timestamp</span>
                 {orderBy === 'desc' ? (
@@ -71,11 +71,11 @@ export default function AlertsTable({ pisoFilter, nivelFilter, orderBy = 'desc' 
                 )}
               </div>
             </th>
-            <th className="px-6 py-4 font-semibold">Piso</th>
-            <th className="px-6 py-4 font-semibold">Variable</th>
-            <th className="px-6 py-4 font-semibold">Nivel</th>
-            <th className="px-6 py-4 font-semibold">Recomendación</th>
-            <th className="px-6 py-4 font-semibold">Acciones</th>
+            <th className="px-4 py-3 font-medium text-left">Piso</th>
+            <th className="px-4 py-3 font-medium text-left">Variable</th>
+            <th className="px-4 py-3 font-medium text-left">Nivel</th>
+            <th className="px-4 py-3 font-medium text-left">Recomendación</th>
+            <th className="px-4 py-3 font-medium text-left">Acciones</th>
           </tr>
         </thead>
         <tbody>
@@ -99,40 +99,40 @@ export default function AlertsTable({ pisoFilter, nivelFilter, orderBy = 'desc' 
               return (
                 <tr
                   key={alert.id}
-                  className="border-b border-gray-100 dark:border-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/30 transition-colors"
+                  className="border-b border-gray-100 dark:border-gray-700/30 hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
                 >
-                          <td className="px-6 py-4 text-xs font-numeric">
+                          <td className="px-4 py-3 text-xs font-numeric text-gray-600 dark:text-gray-400">
                             {format(new Date(alert.timestamp), 'dd/MM/yyyy HH:mm')}
                           </td>
-                  <td className="px-6 py-4">
-                    <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-md text-xs font-semibold">
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 rounded text-xs font-medium border border-blue-200 dark:border-blue-800">
                       Piso {alert.piso}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className="capitalize font-medium text-gray-700 dark:text-gray-300">
+                  <td className="px-4 py-3">
+                    <span className="capitalize text-sm text-gray-700 dark:text-gray-300">
                       {alert.variable}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-2">
-                      <Icon className={`w-5 h-5 ${config.color}`} />
-                      <span className={`capitalize font-semibold ${config.color}`}>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <Icon className={`w-4 h-4 ${config.color}`} />
+                      <span className={`capitalize text-sm font-medium ${config.color}`}>
                         {alert.nivel}
                       </span>
                     </div>
                   </td>
-                  <td className="px-6 py-4 max-w-md">
-                    <p className="truncate text-gray-700 dark:text-gray-300" title={alert.recomendacion}>
+                  <td className="px-4 py-3 max-w-md">
+                    <p className="truncate text-sm text-gray-600 dark:text-gray-400" title={alert.recomendacion}>
                       {alert.recomendacion}
                     </p>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     {alert.estado === 'activa' && (
                       <button
                         onClick={() => handleAcknowledge(alert.id)}
                         disabled={acknowledging === alert.id}
-                        className="px-4 py-2 text-xs font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-sm hover:shadow-md"
+                        className="px-3 py-1.5 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/20 dark:hover:bg-blue-900/30 rounded border border-blue-200 dark:border-blue-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                       >
                         {acknowledging === alert.id ? (
                           <span className="flex items-center gap-1">
@@ -145,8 +145,8 @@ export default function AlertsTable({ pisoFilter, nivelFilter, orderBy = 'desc' 
                       </button>
                     )}
                     {alert.estado === 'reconocida' && (
-                      <span className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/30 rounded-lg">
-                        <CheckCircle2 className="w-4 h-4" />
+                      <span className="flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 rounded border border-green-200 dark:border-green-800">
+                        <CheckCircle2 className="w-3.5 h-3.5" />
                         Reconocida
                       </span>
                     )}
@@ -162,26 +162,26 @@ export default function AlertsTable({ pisoFilter, nivelFilter, orderBy = 'desc' 
 
   return (
     <>
-      <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+      <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
         <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
-            <div className={`px-3 py-1 rounded-full text-xs font-semibold ${
+            <div className={`px-2.5 py-1 rounded text-xs font-medium ${
               alerts.length > 0 
-                ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400' 
-                : 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                ? 'bg-red-50 text-red-700 dark:bg-red-900/20 dark:text-red-400 border border-red-200 dark:border-red-800' 
+                : 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400 border border-green-200 dark:border-green-800'
             }`}>
               {alerts.length} {alerts.length === 1 ? 'alerta' : 'alertas'}
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h3 className="text-base font-semibold text-gray-900 dark:text-white">
               Registro de Alertas
             </h3>
           </div>
           <button
             onClick={() => setIsFullScreen(true)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-1.5 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             title="Pantalla completa"
           >
-            <Maximize2 className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+            <Maximize2 className="w-4 h-4 text-gray-500 dark:text-gray-400" />
           </button>
         </div>
         <div className="max-h-96 overflow-y-auto">{tableContent}</div>
