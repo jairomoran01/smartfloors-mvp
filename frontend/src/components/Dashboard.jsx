@@ -18,7 +18,7 @@ export default function Dashboard() {
   const { data: dashboardData, isLoading } = useQuery({
     queryKey: ['dashboard-summary'],
     queryFn: getDashboardSummary,
-    refetchInterval: 30000,
+    refetchInterval: 60000,
   });
 
   const pisos = dashboardData?.pisos || [];

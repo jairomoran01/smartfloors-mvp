@@ -35,7 +35,7 @@ export default function AlertsTable({ pisoFilter, nivelFilter, orderBy = 'desc' 
       order_by: orderBy,
       limit: 50,
     }),
-    refetchInterval: 30000,
+    refetchInterval: 60000,
   });
 
   const alerts = data?.alerts || [];

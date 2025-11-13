@@ -38,7 +38,7 @@ export default function TrendChart({ piso, variable, label, unit, color }) {
       start: subHours(new Date(), 4).toISOString(),
       limit: 240,
     }),
-    refetchInterval: 30000,
+    refetchInterval: 60000,
   });
 
   const readings = data?.data || [];

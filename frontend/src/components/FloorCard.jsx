@@ -33,7 +33,7 @@ export default function FloorCard({ piso, summary, onViewDetails }) {
   const { data: current, isLoading } = useQuery({
     queryKey: ['floor-current', piso],
     queryFn: () => getFloorCurrent(piso),
-    refetchInterval: 30000, // Actualizar cada 30 segundos
+    refetchInterval: 60000, // Actualizar cada 1 minuto
   });
 
   // Priorizar el status de la lectura actual sobre el summary
