@@ -27,6 +27,12 @@ export const getAlerts = (params = {}) =>
 export const acknowledgeAlert = (alertId) => 
   api.post(`/api/v1/alerts/${alertId}/acknowledge`).then(res => res.data);
 
+export const exportAlertsCSV = (params = {}) => 
+  api.get('/api/v1/alerts/export', { 
+    params: { ...params, format: 'csv' },
+    responseType: 'blob'
+  }).then(res => res.data);
+
 // Predicciones
 export const getPredictions = (piso, horizon = 60) => 
   api.get(`/api/v1/predictions/${piso}`, { params: { horizon } }).then(res => res.data);

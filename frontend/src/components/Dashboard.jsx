@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import { getDashboardSummary } from '../services/api';
+import { getDashboardSummary, exportAlertsCSV } from '../services/api';
 import FloorCard from './FloorCard';
 import TrendChart from './TrendChart';
 import PredictionChart from './PredictionChart';
 import ThermalRiskIndicator from './ThermalRiskIndicator';
 import AlertsTable from './AlertsTable';
+import { Download } from 'lucide-react';
+import { format } from 'date-fns';
 
 export default function Dashboard() {
   const [selectedPiso, setSelectedPiso] = useState(null);
@@ -20,6 +22,153 @@ export default function Dashboard() {
   });
 
   const pisos = dashboardData?.pisos || [];
+
+  // Función para exportar alertas a CSV
+  const handleExportCSV = async () => {
+    try {
+      const params = {
+        piso: pisoFilter || undefined,
+        nivel: nivelFilter || undefined,
+        order_by: orderBy,
+      };
+
+      const blob = await exportAlertsCSV(params);
+      
+      // Leer el blob como texto
+      const text = await blob.text();
+      
+      // Parsear el CSV correctamente (maneja comillas y comas dentro de campos)
+      const parseCSVLine = (line) => {
+        const result = [];
+        let current = '';
+        let inQuotes = false;
+        
+        for (let i = 0; i < line.length; i++) {
+          const char = line[i];
+          
+          if (char === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              // Comilla escapada
+              current += '"';
+              i++;
+            } else {
+              // Toggle quotes
+              inQuotes = !inQuotes;
+            }
+          } else if (char === ',' && !inQuotes) {
+            // Fin del campo
+            result.push(current);
+            current = '';
+          } else {
+            current += char;
+          }
+        }
+        result.push(current); // Último campo
+        return result;
+      };
+      
+      const lines = text.split('\n').filter(line => line.trim());
+      if (lines.length === 0) {
+        alert('No hay alertas para exportar');
+        return;
+      }
+
+      // Headers en español
+      const spanishHeaders = [
+        'ID',
+        'Fecha y Hora',
+        'Piso',
+        'Variable',
+        'Nivel',
+        'Valor Actual',
+        'Umbral',
+        'Recomendación',
+        'Explicación',
+        'Estado'
+      ];
+
+      // Traducir los datos
+      const translatedLines = lines.map((line, index) => {
+        if (index === 0) {
+          // Reemplazar headers
+          return spanishHeaders.join(',');
+        }
+        
+        if (!line.trim()) return line;
+        
+        const columns = parseCSVLine(line);
+        if (columns.length < 10) return line;
+        
+        // Traducir valores
+        const translated = [...columns];
+        
+        // Variable
+        if (translated[3]) {
+          translated[3] = translated[3] === 'temperatura' ? 'Temperatura' :
+                          translated[3] === 'humedad' ? 'Humedad' :
+                          translated[3] === 'energia' ? 'Energía' :
+                          translated[3] === 'riesgo_combinado' ? 'Riesgo Combinado' :
+                          translated[3];
+        }
+        
+        // Nivel
+        if (translated[4]) {
+          translated[4] = translated[4] === 'informativa' ? 'Informativa' :
+                          translated[4] === 'media' ? 'Media' :
+                          translated[4] === 'critica' ? 'Crítica' :
+                          translated[4];
+        }
+        
+        // Estado
+        if (translated[9]) {
+          translated[9] = translated[9] === 'activa' ? 'Activa' :
+                          translated[9] === 'reconocida' ? 'Reconocida' :
+                          translated[9] === 'resuelta' ? 'Resuelta' :
+                          translated[9];
+        }
+        
+        // Formatear fecha
+        if (translated[1]) {
+          try {
+            const date = new Date(translated[1]);
+            translated[1] = format(date, 'dd/MM/yyyy HH:mm:ss');
+          } catch (e) {
+            // Mantener formato original si falla
+          }
+        }
+        
+        // Escapar comillas en campos que las contengan
+        return translated.map(field => {
+          if (field.includes(',') || field.includes('"') || field.includes('\n')) {
+            return `"${field.replace(/"/g, '""')}"`;
+          }
+          return field;
+        }).join(',');
+      });
+
+      // Crear nuevo blob con CSV en español
+      const csvContent = translatedLines.join('\n');
+      const BOM = '\uFEFF'; // Para Excel
+      const newBlob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+      
+      // Crear enlace de descarga
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(newBlob);
+      link.setAttribute('href', url);
+      
+      // Nombre del archivo con fecha
+      const fechaExport = format(new Date(), 'yyyy-MM-dd_HH-mm-ss');
+      link.setAttribute('download', `alertas_smartfloors_${fechaExport}.csv`);
+      
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error al exportar CSV:', error);
+      alert('Error al exportar las alertas a CSV');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -200,7 +349,7 @@ export default function Dashboard() {
                   Sistema de Alertas
                 </h2>
               </div>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 items-end">
                 {/* Filtro por Piso */}
                 <div className="flex flex-col">
                   <label className="text-xs text-gray-500 dark:text-gray-400 mb-1">Piso</label>
@@ -215,6 +364,16 @@ export default function Dashboard() {
                     <option value="3">Piso 3</option>
                   </select>
                 </div>
+
+                {/* Botón Exportar CSV */}
+                <button
+                  onClick={handleExportCSV}
+                  className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-fuchsia-600 hover:bg-fuchsia-700 dark:bg-fuchsia-500 dark:hover:bg-fuchsia-600 rounded-lg shadow-sm hover:shadow transition-all"
+                  title="Exportar alertas a CSV"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Exportar CSV</span>
+                </button>
 
                 {/* Filtro por Nivel */}
                 <div className="flex flex-col">
